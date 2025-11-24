@@ -7,11 +7,11 @@ import zipfile
 import tempfile
 from datetime import datetime
 
-# AWS Configuration
-AWS_ACCESS_KEY_ID = "AKIAXIO3NQ5HYNTDZ54V"
-AWS_SECRET_ACCESS_KEY = "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"
-AWS_REGION = "us-east-1"
-S3_BUCKET = "fl-phishing-deployment"
+# AWS Configuration - USE ENVIRONMENT VARIABLES
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID', 'YOUR_ACCESS_KEY')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY', 'YOUR_SECRET_KEY')
+AWS_REGION = os.getenv('AWS_DEFAULT_REGION', 'us-east-1')
+S3_BUCKET = os.getenv('S3_BUCKET_NAME', 'fl-phishing-deployment')
 
 def create_project_zip():
     """Create zip file of entire project"""
