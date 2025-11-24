@@ -8,10 +8,7 @@ import tempfile
 from datetime import datetime
 
 # AWS Configuration
-AWS_ACCESS_KEY_ID = "AKIAXIO3NQ5HYNTDZ54V"
-AWS_SECRET_ACCESS_KEY = "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"
-AWS_REGION = "us-east-1"
-S3_BUCKET = "fl-phishing-deployment"
+
 
 def create_project_zip():
     """Create zip file of entire project"""
