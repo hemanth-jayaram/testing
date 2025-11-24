@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-history"></i> Model Versions</h3>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Version</th>
+                                <th>Created Date</th>
+                                <th>Size</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for model in models %}
+                            <tr>
+                                <td>
+                                    <strong>v{{ model.version }}</strong>
+                                    {% if model.is_latest %}
+                                    <span class="badge bg-success ms-2">Latest</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ model.created_date }}</td>
+                                <td>{{ model.size }}</td>
+                                <td>
+                                    <span class="badge bg-success">Ready</span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary" onclick="downloadModel({{ model.version }})">
+                                        <i class="fas fa-download"></i> Download
+                                    </button>
+                                    <button class="btn btn-sm btn-info" onclick="testModel({{ model.version }})">
+                                        <i class="fas fa-test-tube"></i> Test
+                                    </button>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">No models trained yet</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        {% if models %}
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>Latest Model Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Model Details</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Version:</strong> v{{ latest_model.version }}</li>
+                            <li><strong>Algorithm:</strong> Federated Averaging (FedAvg)</li>
+                            <li><strong>Base Model:</strong> Logistic Regression</li>
+                            <li><strong>Features:</strong> TF-IDF (1000 features)</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Training Statistics</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Training Clients:</strong> {{ latest_model.client_count }}</li>
+                            <li><strong>Training Rounds:</strong> {{ latest_model.rounds }}</li>
+                            <li><strong>Final Accuracy:</strong> {{ "%.2f"|format(latest_model.accuracy * 100) }}%</li>
+                            <li><strong>Created:</strong> {{ latest_model.created_date }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function downloadModel(version) {
+    window.location.href = `/api/download_model/${version}`;
+}
+
+function testModel(version) {
+    window.location.href = `/classify?model_version=${version}`;
+}
+</script>
+{% endblock %}

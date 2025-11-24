@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-search"></i> Email Classification</h3>
+            </div>
+            <div class="card-body">
+                <form id="classifyForm">
+                    <div class="mb-3">
+                        <label for="email_text" class="form-label">Email Content</label>
+                        <textarea class="form-control" id="email_text" name="email_text" rows="6" 
+                                  placeholder="Enter email content to classify..." required></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="model_version" class="form-label">Model Version</label>
+                        <select class="form-select" id="model_version" name="model_version">
+                            <option value="latest">Latest Model (v{{ latest_version }})</option>
+                            {% for version in available_versions %}
+                            <option value="{{ version }}">Model v{{ version }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-search"></i> Classify Email
+                    </button>
+                </form>
+                
+                <div id="result" class="mt-4" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Classification Result</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Prediction</h6>
+                                    <div id="prediction-badge"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Confidence Score</h6>
+                                    <div class="progress">
+                                        <div id="confidence-bar" class="progress-bar" role="progressbar"></div>
+                                    </div>
+                                    <small id="confidence-text" class="text-muted"></small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>Sample Emails for Testing</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Phishing Examples</h6>
+                        <div class="list-group">
+                            <button class="list-group-item list-group-item-action sample-email" 
+                                    data-text="Urgent: Your account will be suspended. Click here to verify your identity immediately.">
+                                Account Suspension Warning
+                            </button>
+                            <button class="list-group-item list-group-item-action sample-email" 
+                                    data-text="Congratulations! You've won $1,000,000. Click this link to claim your prize now.">
+                                Prize Winner Notification
+                            </button>
+                            <button class="list-group-item list-group-item-action sample-email" 
+                                    data-text="Your bank account has been compromised. Please update your login credentials immediately.">
+                                Bank Security Alert
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Legitimate Examples</h6>
+                        <div class="list-group">
+                            <button class="list-group-item list-group-item-action sample-email" 
+                                    data-text="Meeting scheduled for tomorrow at 2 PM in conference room A. Please bring your reports.">
+                                Meeting Reminder
+                            </button>
+                            <button class="list-group-item list-group-item-action sample-email" 
+                                    data-text="Thank you for your presentation today. The quarterly results look promising.">
+                                Work Feedback
+                            </button>
+                            <button class="list-group-item list-group-item-action sample-email" 
+                                    data-text="Your monthly subscription has been renewed. Invoice attached for your records.">
+                                Subscription Renewal
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$('#classifyForm').on('submit', function(e) {
+    e.preventDefault();
+    
+    const emailText = $('#email_text').val();
+    const modelVersion = $('#model_version').val();
+    
+    $.post('/api/classify', {
+        email_text: emailText,
+        model_version: modelVersion
+    })
+    .done(function(response) {
+        if (response.success) {
+            displayResult(response.prediction, response.confidence);
+        } else {
+            alert('Error: ' + response.message);
+        }
+    })
+    .fail(function() {
+        alert('Error: Failed to classify email');
+    });
+});
+
+$('.sample-email').click(function() {
+    const sampleText = $(this).data('text');
+    $('#email_text').val(sampleText);
+});
+
+function displayResult(prediction, confidence) {
+    const isPhishing = prediction === 1;
+    const label = isPhishing ? 'Phishing' : 'Legitimate';
+    const badgeClass = isPhishing ? 'bg-danger' : 'bg-success';
+    const confidencePercent = Math.round(confidence * 100);
+    
+    $('#prediction-badge').html(`<span class="badge ${badgeClass} fs-6">${label}</span>`);
+    $('#confidence-bar').css('width', confidencePercent + '%')
+                       .removeClass('bg-success bg-danger')
+                       .addClass(isPhishing ? 'bg-danger' : 'bg-success');
+    $('#confidence-text').text(`${confidencePercent}% confidence`);
+    
+    $('#result').show();
+}
+</script>
+{% endblock %}

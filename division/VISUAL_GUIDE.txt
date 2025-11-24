@@ -1,0 +1,211 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    PROJECT DIVISION - VISUAL GUIDE                           ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                          TEAM STRUCTURE (4 MEMBERS)                          │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+    ┌─────────────────┐      ┌─────────────────┐
+    │   MEMBER 1      │      │   MEMBER 2      │
+    │ Backend & ML    │      │ Cloud & DevOps  │
+    ├─────────────────┤      ├─────────────────┤
+    │ • server.py     │      │ • s3_helper.py  │
+    │ • client.py     │      │ • deploy.sh     │
+    │ • model.py      │      │ • terraform.tf  │
+    │ • training.py   │      │ • docker files  │
+    │ • model_stats   │      │ • nginx.conf    │
+    │ • requirements  │      │ • AWS setup     │
+    └─────────────────┘      └─────────────────┘
+           │                         │
+           └────────┬────────────────┘
+                    │
+         ┌──────────▼──────────┐
+         │   MAIN REPOSITORY   │
+         │   (GitHub)          │
+         └──────────┬──────────┘
+                    │
+           ┌────────┴────────────────┐
+           │                         │
+    ┌─────▼─────────┐      ┌────────▼────────┐
+    │   MEMBER 3    │      │   MEMBER 4      │
+    │ Frontend/Web  │      │ Data & Docs     │
+    ├───────────────┤      ├─────────────────┤
+    │ • app.py      │      │ • README.md     │
+    │ • config.py   │      │ • sample_data/  │
+    │ • templates/  │      │ • .env.example  │
+    │ • static/     │      │ • .gitignore    │
+    │ • 6 HTML      │      │ • verify.py     │
+    │ • CSS/JS      │      │ • cleanup.bat   │
+    └───────────────┘      └─────────────────┘
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                            GIT WORKFLOW                                      │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+                            ┌──────────────┐
+                            │     main     │
+                            │   (branch)   │
+                            └──────┬───────┘
+                                   │
+              ┌────────────────────┼────────────────────┐
+              │                    │                    │
+    ┌─────────▼─────────┐  ┌──────▼──────┐  ┌─────────▼─────────┐
+    │ feature/          │  │  feature/   │  │  feature/         │
+    │ federated-        │  │  cloud-     │  │  web-             │
+    │ learning          │  │  infra      │  │  interface        │
+    │ (Member 1)        │  │ (Member 2)  │  │  (Member 3)       │
+    └───────────────────┘  └─────────────┘  └───────────────────┘
+              │                    │                    │
+              └────────────────────┼────────────────────┘
+                                   │
+                         ┌─────────▼─────────┐
+                         │  feature/data-    │
+                         │  documentation    │
+                         │  (Member 4)       │
+                         └───────────────────┘
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                         FILE DEPENDENCIES                                    │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+    app.py (Member 3)
+      ├── imports server.py (Member 1)
+      ├── imports client.py (Member 1)
+      ├── imports model.py (Member 1)
+      ├── imports training_engine.py (Member 1)
+      ├── imports model_stats.py (Member 1)
+      ├── imports s3_helper.py (Member 2)
+      └── imports config.py (Member 3)
+
+    server.py (Member 1)
+      ├── imports client.py (Member 1)
+      ├── imports model.py (Member 1)
+      └── imports s3_helper.py (Member 2)
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                        INTEGRATION TIMELINE                                  │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+    Week 1: Individual Development
+    ┌─────────┬─────────┬─────────┬─────────┐
+    │ Member1 │ Member2 │ Member3 │ Member4 │
+    │   ML    │  Cloud  │   Web   │  Docs   │
+    └─────────┴─────────┴─────────┴─────────┘
+
+    Week 2: Integration
+    ┌──────────────┬──────────────┐
+    │  M1 + M2     │  M3 + M4     │
+    │  ML + Cloud  │  Web + Docs  │
+    └──────────────┴──────────────┘
+              │
+              ▼
+    ┌─────────────────────────────┐
+    │    Full Integration         │
+    │    All Members              │
+    └─────────────────────────────┘
+
+    Week 3: Deployment
+    ┌─────────────────────────────┐
+    │    AWS Deployment           │
+    │    Testing & Demo           │
+    └─────────────────────────────┘
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                         FOLDER STRUCTURE                                     │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+fl-phish-cloud/
+│
+├── division/                    ← NEW! Team division folder
+│   ├── QUICK_START.md          ← Start here!
+│   ├── PROJECT_DIVISION.md     ← Detailed roles
+│   ├── TEAM_GUIDE.md           ← Collaboration guide
+│   ├── DIVISION_SUMMARY.md     ← Complete overview
+│   │
+│   ├── member1/                ← Backend & ML (6 files)
+│   │   ├── README_MEMBER1.md
+│   │   ├── server.py
+│   │   ├── client.py
+│   │   ├── model.py
+│   │   ├── training_engine.py
+│   │   ├── model_stats.py
+│   │   └── requirements.txt
+│   │
+│   ├── member2/                ← Cloud & DevOps (10 files)
+│   │   ├── README_MEMBER2.md
+│   │   ├── s3_helper.py
+│   │   ├── setup_aws.py
+│   │   ├── deploy.sh
+│   │   ├── terraform_deploy.tf
+│   │   └── ... (Docker, Nginx)
+│   │
+│   ├── member3/                ← Frontend & Web (10 files)
+│   │   ├── README_MEMBER3.md
+│   │   ├── app.py
+│   │   ├── config.py
+│   │   ├── templates/
+│   │   └── static/
+│   │
+│   └── member4/                ← Data & Docs (6+ files)
+│       ├── README_MEMBER4.md
+│       ├── README.md
+│       ├── sample_data/
+│       ├── .env.example
+│       └── verify_setup.py
+│
+└── [All original files intact] ← Original project unchanged!
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                         QUICK COMMANDS                                       │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+# View your assignment
+cd division/member1/  # or member2, member3, member4
+cat README_MEMBERX.md
+
+# Create your branch
+git checkout -b feature/federated-learning    # Member 1
+git checkout -b feature/cloud-infrastructure  # Member 2
+git checkout -b feature/web-interface         # Member 3
+git checkout -b feature/data-documentation    # Member 4
+
+# Work and commit
+git add <your-files>
+git commit -m "feat(scope): description"
+git push origin <your-branch>
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                         SUCCESS METRICS                                      │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+Individual:
+  ☐ All assigned files completed
+  ☐ Code tested and working
+  ☐ 5+ meaningful commits
+  ☐ Code reviewed by peers
+
+Team:
+  ☐ All 4 branches created
+  ☐ All branches merged to main
+  ☐ Application runs end-to-end
+  ☐ Deployed to AWS
+  ☐ Documentation complete
+  ☐ Demo presentation ready
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    READY TO START! 🚀                                        ║
+║                                                                              ║
+║  1. Read QUICK_START.md                                                      ║
+║  2. Decide team member roles                                                 ║
+║  3. Create GitHub repository                                                 ║
+║  4. Each member creates their branch                                         ║
+║  5. Start coding!                                                            ║
+╚══════════════════════════════════════════════════════════════════════════════╝

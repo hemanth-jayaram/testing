@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-cogs"></i> Federated Training Console</h3>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="rounds" class="form-label">Training Rounds</label>
+                        <input type="number" class="form-control" id="rounds" value="10" min="1" max="50">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Available Datasets</label>
+                        <p class="form-control-plaintext">{{ dataset_count }} datasets in S3</p>
+                    </div>
+                </div>
+                
+                <button id="startTraining" class="btn btn-success btn-lg">
+                    <i class="fas fa-play"></i> Start Federated Training
+                </button>
+                
+                <button id="stopTraining" class="btn btn-danger btn-lg" style="display: none;">
+                    <i class="fas fa-stop"></i> Stop Training
+                </button>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>Training Progress</h5>
+            </div>
+            <div class="card-body">
+                <div class="progress mb-3">
+                    <div id="trainingProgress" class="progress-bar" role="progressbar" style="width: 0%">
+                        0%
+                    </div>
+                </div>
+                
+                <div id="trainingLogs" class="bg-dark text-light p-3 rounded" style="height: 300px; overflow-y: auto;">
+                    <div class="text-muted">Training logs will appear here...</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>Accuracy Chart</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="accuracyChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let trainingActive = false;
+let accuracyChart;
+
+// Initialize chart
+const ctx = document.getElementById('accuracyChart').getContext('2d');
+accuracyChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: [],
+        datasets: [{
+            label: 'Global Accuracy',
+            data: [],
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 1
+            }
+        }
+    }
+});
+
+$('#startTraining').click(function() {
+    const rounds = $('#rounds').val();
+    startTraining(rounds);
+});
+
+$('#stopTraining').click(function() {
+    trainingActive = false;
+    $('#startTraining').show();
+    $('#stopTraining').hide();
+    addLog('Training stopped by user');
+});
+
+function startTraining(rounds) {
+    trainingActive = true;
+    $('#startTraining').hide();
+    $('#stopTraining').show();
+    
+    // Clear previous data
+    accuracyChart.data.labels = [];
+    accuracyChart.data.datasets[0].data = [];
+    accuracyChart.update();
+    
+    addLog('Starting federated training...');
+    
+    $.post('/api/train', {rounds: rounds})
+        .done(function(response) {
+            if (response.success) {
+                pollTrainingStatus();
+            } else {
+                addLog('Error: ' + response.message);
+                resetTrainingUI();
+            }
+        })
+        .fail(function() {
+            addLog('Error: Failed to start training');
+            resetTrainingUI();
+        });
+}
+
+function pollTrainingStatus() {
+    if (!trainingActive) return;
+    
+    $.get('/api/training_status')
+        .done(function(response) {
+            updateProgress(response.current_round, response.total_rounds);
+            
+            if (response.logs) {
+                response.logs.forEach(log => addLog(log));
+            }
+            
+            if (response.accuracies) {
+                updateChart(response.accuracies);
+            }
+            
+            if (response.completed) {
+                addLog('Training completed successfully!');
+                addLog(`Final model saved as version ${response.model_version}`);
+                resetTrainingUI();
+            } else {
+                setTimeout(pollTrainingStatus, 2000);
+            }
+        })
+        .fail(function() {
+            addLog('Error: Lost connection to training process');
+            resetTrainingUI();
+        });
+}
+
+function updateProgress(current, total) {
+    const percentage = (current / total) * 100;
+    $('#trainingProgress').css('width', percentage + '%').text(Math.round(percentage) + '%');
+}
+
+function addLog(message) {
+    const timestamp = new Date().toLocaleTimeString();
+    const logEntry = `[${timestamp}] ${message}`;
+    $('#trainingLogs').append('<div>' + logEntry + '</div>');
+    $('#trainingLogs').scrollTop($('#trainingLogs')[0].scrollHeight);
+}
+
+function updateChart(accuracies) {
+    accuracyChart.data.labels = accuracies.map((_, i) => `Round ${i + 1}`);
+    accuracyChart.data.datasets[0].data = accuracies;
+    accuracyChart.update();
+}
+
+function resetTrainingUI() {
+    trainingActive = false;
+    $('#startTraining').show();
+    $('#stopTraining').hide();
+}
+</script>
+{% endblock %}

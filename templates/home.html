@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="jumbotron bg-light p-5 rounded">
+            <h1 class="display-4">Federated Learning Phishing Detection</h1>
+            <p class="lead">Cloud-enabled federated learning system for phishing email detection using AWS S3 and EC2.</p>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-upload fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Upload Dataset</h5>
+                <p class="card-text">Upload CSV files to S3 for federated training</p>
+                <a href="{{ url_for('upload') }}" class="btn btn-primary">Upload CSV</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-cogs fa-3x text-success mb-3"></i>
+                <h5 class="card-title">Train Model</h5>
+                <p class="card-text">Run federated training on S3 datasets</p>
+                <a href="{{ url_for('train') }}" class="btn btn-success">Train Model</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-history fa-3x text-info mb-3"></i>
+                <h5 class="card-title">Model Versions</h5>
+                <p class="card-text">View all trained model versions</p>
+                <a href="{{ url_for('models') }}" class="btn btn-info">View Models</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-search fa-3x text-warning mb-3"></i>
+                <h5 class="card-title">Classify Email</h5>
+                <p class="card-text">Test email classification with latest model</p>
+                <a href="{{ url_for('classify') }}" class="btn btn-warning">Classify</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-12">
+        <h3>System Statistics</h3>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h5>Datasets in S3</h5>
+                        <h2 id="dataset-count">{{ stats.dataset_count }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <h5>Model Versions</h5>
+                        <h2 id="model-count">{{ stats.model_count }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <h5>Latest Accuracy</h5>
+                        <h2 id="latest-accuracy">{{ "%.2f"|format(stats.latest_accuracy * 100) }}%</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

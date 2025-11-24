@@ -1,0 +1,61 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Flask
+instance/
+.webassets-cache
+
+# Environment variables
+.env
+.env.local
+
+# AWS Credentials & Keys
+*.pem
+*.key
+devops-key.pem
+aws-credentials.txt
+
+# Temporary files
+temp_uploads/
+*.tmp
+*.log
+logs.txt
+
+# Model files (stored in S3)
+*.pkl
+*.h5
+*.pt
+
+# Plots and visualizations
+*.png
+*.jpg
+*.jpeg
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Documentation builds
+docs/_build/
